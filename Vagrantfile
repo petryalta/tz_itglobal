@@ -3,16 +3,15 @@
 
 # List of supported operating systems
 SUPPORTED_OS = {
-  "debian"   => {box: "debian/jessie64", bootstrap_os: "debian", user: "vagrant"},
-  "ubuntu"   => {box: "ubuntu/xenial64", bootstrap_os: "ubuntu", user: "vagrant"},
-  "centos"   => {box: "centos/7",        bootstrap_os: "centos", user: "vagrant"}
+  "ubuntu16"   => {box: "ubuntu/xenial64", bootstrap_os: "ubuntu", user: "vagrant"},
+  "ubuntu18"   => {box: "ubuntu/bionic64", bootstrap_os: "ubuntu", user: "vagrant"}
 }
 
 # Vagrant instance management
-$os                     = "ubuntu"
+$os                     = "ubuntu16"
 $num_instances          = 3
 $instance_name_prefix   = "swarm"
-$vm_memory              = 1500
+$vm_memory              = 2000
 $vm_cpus                = 1
 $subnet                 = "10.0.0.22" # For 10.0.0.22X
 $box                    = SUPPORTED_OS[$os][:box]

@@ -1,0 +1,53 @@
+version: '3.2'
+
+services:
+  nodexporter:
+    image: prom/node-exporter
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        window: 60s
+    volumes:
+      - /:/host:ro,rslave
+
+  cadvisor:
+    image: google/cadvisor
+    restart: always
+    ports:
+      - "9094:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+        window: 60s
+
+  prometeus:
+    image: prom/prometheus
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        window: 60s
+      placement:
+        constraints:
+          - node.hostname == swarm01
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        window: 60s
+      placement:
+        constraints:
+          - node.hostname == swarm01

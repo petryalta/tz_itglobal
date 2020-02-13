@@ -1,0 +1,19 @@
+---
+
+- block:
+
+    - name: "Copy monitoring yaml files"
+      copy:
+        src: "{{ role_path }}/files/monitoring.yaml"
+        dest: "/tmp/deploy/"
+
+    - name: "Deploy monitoring"
+      shell: "docker stack deploy --compose-file /tmp/deploy/monitoring.yaml monitoring "
+
+- block:
+    - name: "Copy ELK yaml files"
+        src: "{{ role_path }}/files/elk.yaml"
+        dest: "/tmp/deploy/"
+
+    - name: "Deploy monitoring"
+      shell: "docker stack deploy --compose-file /tmp/deploy/elk.yaml elk "
