@@ -1,10 +1,41 @@
 ---
 
+#- hosts: swarm
+#  remote_user: vagrant
+#  become: yes
+#  roles:
+#    - swarm
+
 - hosts: swarm
   remote_user: vagrant
   become: yes
-  roles:
-    - swarm
+  tasks:
+    - name: Tune sysctl
+      sysctl:
+        name: vm.max_map_count
+        value: 262144
+        state: present
+
+    - name: Enable soft memory limits for Elastic
+      pam_limits:
+        domain: elasticsearch
+        limit_type: soft
+        limit_item: memlock
+        value: unlimited
+
+    - name: Enable soft memory limits for Elastic
+      pam_limits:
+        domain: elasticsearch
+        limit_type: hard
+        limit_item: memlock
+        value: unlimited
+
+    - name: Set more files for Elastic
+      pam_limits:
+        domain: elasticsearch
+        limit_type: "-"
+        limit_item: nofile
+        value: 65536
 
 - hosts: swarm01
   remote_user: vagrant

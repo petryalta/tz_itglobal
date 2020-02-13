@@ -1,0 +1,72 @@
+---
+
+version: '3.2'
+
+services:
+
+  elasticsearch1:
+    restart: unless-stopped
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    container_name: es01
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    environment:
+      - node.name=swarm02
+      - discovery.seed_hosts=swarm03
+      - cluster.initial_master_nodes=swarm02,swarm03
+      - cluster.name=test-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms640m -Xmx640m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        window: 60s
+      placement:
+        constraints:
+          - node.hostname == swarm02
+
+  elasticsearch2:
+    restart: unless-stopped
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    container_name: es02
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    environment:
+      - node.name=swarm03
+      - discovery.seed_hosts=swarm03
+      - cluster.initial_master_nodes=swarm02,swarm03
+      - cluster.name=test-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms640m -Xmx640m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        window: 60s
+      placement:
+        constraints:
+          - node.hostname == swarm03
+
+  kibana:
+    restart: always
+    image: docker.elastic.co/kibana/kibana:7.3.2
+    environment:
+      SERVER_NAME: "0.0.0.0"
+      ELASTICSEARCH_HOSTS: "http://swarm02:9201"
+
+#  curator:
+#    restart: unless-stopped
+#    image: bobrik/curator:5.8.1

@@ -1,5 +1,9 @@
 ---
 
+- name: "Get exists stacks"
+  shell: "docker stack ls"
+  register: docker_stacks
+
 - block:
 
     - name: "Copy monitoring yaml files"
@@ -7,13 +11,23 @@
         src: "{{ role_path }}/files/monitoring.yaml"
         dest: "/tmp/deploy/"
 
+    - name: "Remove stack monitoring"
+      shell: "docker stack rm monitoring"
+      when: docker_stacks.stdout.find('monitoring') != -1
+
     - name: "Deploy monitoring"
       shell: "docker stack deploy --compose-file /tmp/deploy/monitoring.yaml monitoring "
 
 - block:
-    - name: "Copy ELK yaml files"
-        src: "{{ role_path }}/files/elk.yaml"
+
+    - name: "Copy EFK yaml files"
+      copy:
+        src: "{{ role_path }}/files/efk.yaml"
         dest: "/tmp/deploy/"
 
-    - name: "Deploy monitoring"
-      shell: "docker stack deploy --compose-file /tmp/deploy/elk.yaml elk "
+    - name: "Remove stack monitoring"
+      shell: "docker stack rm efk"
+      when: docker_stacks.stdout.find('efk') != -1
+
+    - name: "Deploy EFK"
+      shell: "docker stack deploy --compose-file /tmp/deploy/efk.yaml efk "
