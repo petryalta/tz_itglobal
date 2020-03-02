@@ -63,9 +63,20 @@ services:
   kibana:
     restart: always
     image: docker.elastic.co/kibana/kibana:7.3.2
+    ports:
+      - "5601:5601"
     environment:
       SERVER_NAME: "0.0.0.0"
       ELASTICSEARCH_HOSTS: "http://swarm02:9201"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        window: 60s
+      placement:
+        constraints:
+          - node.hostname == swarm01
 
 #  curator:
 #    restart: unless-stopped

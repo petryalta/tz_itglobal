@@ -31,3 +31,39 @@
 
     - name: "Deploy EFK"
       shell: "docker stack deploy --compose-file /tmp/deploy/efk.yaml efk "
+
+- block:
+
+    - name: "Create nginx config directory if it does not exist"
+      file:
+        path: /etc/nginx/conf.d
+        state: directory
+        mode: '0755'
+
+    - name: "Copy Nginx config file"
+      copy:
+        src: "{{ role_path }}/files/nginx.conf"
+        dest: "/etc/nginx/conf.d/default.conf"
+
+    - name: "Create web-root directory if it does not exist"
+      file:
+        path: /usr/share/nginx/html
+        state: directory
+        mode: '0755'
+
+    - name: "Copy Nginx index file"
+      copy:
+        src: "{{ role_path }}/files/nginx.html"
+        dest: "/usr/share/nginx/html/index.html"
+
+    - name: "Copy Nginx deployment file"
+      copy:
+        src: "{{ role_path }}/files/nginx.yaml"
+        dest: "/tmp/deploy/"
+
+    - name: "Remove stack NGINX"
+      shell: "docker stack rm nginx"
+      when: docker_stacks.stdout.find('nginx') != -1
+
+    - name: "Deploy NGINX"
+      shell: "docker stack deploy --compose-file /tmp/deploy/nginx.yaml nginx "

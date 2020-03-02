@@ -13,7 +13,6 @@ services:
 
   cadvisor:
     image: google/cadvisor
-    restart: always
     ports:
       - "9094:8080"
     volumes:
@@ -28,6 +27,9 @@ services:
 
   prometeus:
     image: prom/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.external-url=http://localhost/prometheus'
     deploy:
       mode: replicated
       replicas: 1
